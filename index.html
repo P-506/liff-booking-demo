@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จองบริการทำความสะอาด</title>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="header">
+    <h1>เลือกบริการ</h1>
+    <div class="progress">
+      <div class="progress-bar" style="width:20%"></div>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="card selectable" data-value="one_time">
+      <h2>รายครั้ง</h2>
+      <p>ทำความสะอาดตามวันที่เลือก</p>
+    </div>
+
+    <div class="card selectable disabled" data-value="monthly">
+      <h2>รายเดือน</h2>
+      <p>ทำความสะอาดเป็นประจำ (เร็ว ๆ นี้)</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <button id="nextBtn" disabled>ถัดไป</button>
+  </footer>
+
+<script>
+  const LIFF_ID = "PUT_YOUR_LIFF_ID_HERE";
+  let selectedService = null;
+
+  liff.init({ liffId: LIFF_ID });
+
+  document.querySelectorAll('.selectable').forEach(card => {
+    if (card.classList.contains('disabled')) return;
+
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedService = card.dataset.value;
+      document.getElementById('nextBtn').disabled = false;
+    });
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (!selectedService) return;
+    // เก็บค่าไว้ localStorage หรือส่งไปหน้าถัดไป
+    localStorage.setItem('service_type', selectedService);
+    window.location.href = "area.html"; // หน้าถัดไป
+  });
+</script>
+
+</body>
+</html>

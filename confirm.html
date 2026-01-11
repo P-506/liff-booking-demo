@@ -82,60 +82,46 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-  const API_URL = "https://script.google.com/macros/s/AKfycbw9Jg-z0bB6QMjdxXufLQx66CLuybPgcdPQWTs845MdfNnuA_4baUBsn214oCxywEA/exec";
+  const API_URL = "เอา URL Apps Script มาใส่ตรงนี้";
+  const confirmBtn = document.getElementById("confirmBtn");
 
-  // init LIFF (ไม่ critical ถ้า warning ขึ้น)
-  if (window.liff) {
-    liff.init({ liffId: "2008867980-fq1KwxaY" }).catch(() => {});
-  }
+  confirmBtn.addEventListener("click", function () {
 
-  // ดึงข้อมูลจาก localStorage
-  const serviceType = localStorage.getItem("service_type");
-  const area = localStorage.getItem("area");
-  const date = localStorage.getItem("date");
-  const slot = localStorage.getItem("slot");
-  const slotLabel = localStorage.getItem("slot_label");
+    // 🔒 กันกดซ้ำ
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "กำลังบันทึก...";
 
-  // ถ้าไม่มีข้อมูล แสดงเตือน
-  if (!serviceType || !area || !date || !slot) {
-    alert("ข้อมูลการจองไม่ครบ กรุณาเริ่มใหม่");
-    return;
-  }
+    const service_type = localStorage.getItem("service_type");
+    const area = localStorage.getItem("area");
+    const date = localStorage.getItem("date");
+    const slot = localStorage.getItem("slot");
 
-  // แสดงข้อมูล
-  document.getElementById("service").textContent =
-    serviceType === "one_time" ? "ทำความสะอาดรายครั้ง" : "ทำความสะอาดรายเดือน";
-  document.getElementById("area").textContent =
-    area === "bangkok" ? "กรุงเทพ" : "ปริมณฑล";
-  document.getElementById("date").textContent = date;
-  document.getElementById("slot").textContent = slotLabel || slot;
+    // 🔎 เช็กข้อมูลก่อนส่ง
+    if (!service_type || !area || !date || !slot) {
+      alert("ข้อมูลไม่ครบ กรุณาเริ่มใหม่");
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "✅ ยืนยันการจอง";
+      return;
+    }
 
-  // iframe ล่องหน (กันหน้าขาว)
-  const iframe = document.createElement("iframe");
-  iframe.name = "hidden_iframe";
-  iframe.style.display = "none";
-  document.body.appendChild(iframe);
-
-  // ปุ่มยืนยัน
-  document.getElementById("confirmBtn").addEventListener("click", function () {
-
+    // ส่งแบบฟอร์ม (กัน CORS)
     const form = document.createElement("form");
     form.method = "POST";
     form.action = API_URL;
     form.target = "hidden_iframe";
 
-    function addField(name, value) {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
+    function add(name, value) {
+      const i = document.createElement("input");
+      i.type = "hidden";
+      i.name = name;
+      i.value = value;
+      form.appendChild(i);
     }
 
-    addField("service_type", serviceType);
-    addField("area", area);
-    addField("date", date);
-    addField("slot", slot);
+    add("service_type", service_type);
+    add("area", area);
+    add("date", date);
+    add("slot", slot);
 
     document.body.appendChild(form);
     form.submit();
@@ -150,6 +136,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
-
 </body>
 </html>

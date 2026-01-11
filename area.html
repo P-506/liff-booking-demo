@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เลือกพื้นที่ให้บริการ</title>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="header">
+    <h1>เลือกพื้นที่</h1>
+    <div class="progress">
+      <div class="progress-bar" style="width:40%"></div>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="card selectable" data-value="bangkok">
+      <h2>กรุงเทพ</h2>
+      <p>ให้บริการในเขตกรุงเทพมหานคร</p>
+    </div>
+
+    <div class="card selectable" data-value="metro">
+      <h2>ปริมณฑล</h2>
+      <p>นนทบุรี ปทุมธานี สมุทรปราการ</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <button class="secondary" id="backBtn">ย้อนกลับ</button>
+    <button id="nextBtn" disabled>ถัดไป</button>
+  </footer>
+
+<script>
+  const LIFF_ID = "PUT_YOUR_LIFF_ID_HERE";
+  let selectedArea = null;
+
+  liff.init({ liffId: LIFF_ID });
+
+  document.querySelectorAll('.selectable').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedArea = card.dataset.value;
+      document.getElementById('nextBtn').disabled = false;
+    });
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (!selectedArea) return;
+    localStorage.setItem('area', selectedArea);
+    window.location.href = "date.html";
+  });
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    history.back();
+  });
+</script>
+
+</body>
+</html>

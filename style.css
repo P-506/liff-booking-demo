@@ -85,3 +85,17 @@ body {
 .footer button:disabled {
   background: #9CA3AF;
 }
+.footer {
+  display: flex;
+  gap: 12px;
+}
+
+.footer button.secondary {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #E5E7EB;
+}
+
+.footer button.secondary:disabled {
+  opacity: 0.5;
+}

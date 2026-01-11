@@ -1,18 +1,26 @@
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+
   const API_URL = "https://script.google.com/macros/s/AKfycbw9Jg-z0bB6QMjdxXufLQx66CLuybPgcdPQWTs845MdfNnuA_4baUBsn214oCxywEA/exec";
 
-  // สร้าง iframe ล่องหน (กันหน้าเปลี่ยน)
+  // สร้าง iframe ล่องหน
   const iframe = document.createElement("iframe");
   iframe.name = "hidden_iframe";
   iframe.style.display = "none";
   document.body.appendChild(iframe);
 
-  document.getElementById("confirmBtn").addEventListener("click", () => {
-    // สร้างฟอร์ม
+  const confirmBtn = document.getElementById("confirmBtn");
+  if (!confirmBtn) {
+    console.error("ไม่พบปุ่ม confirmBtn");
+    return;
+  }
+
+  confirmBtn.addEventListener("click", function () {
+
     const form = document.createElement("form");
     form.method = "POST";
     form.action = API_URL;
-    form.target = "hidden_iframe"; // ⭐ สำคัญมาก
+    form.target = "hidden_iframe";
 
     function addField(name, value) {
       const input = document.createElement("input");
@@ -30,7 +38,6 @@
     document.body.appendChild(form);
     form.submit();
 
-    // UX ฝั่งผู้ใช้
     alert("🎉 จองสำเร็จ");
     localStorage.clear();
 
@@ -38,4 +45,6 @@
       liff.closeWindow();
     }
   });
+
+});
 </script>

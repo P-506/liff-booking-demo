@@ -2,37 +2,32 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbw9Jg-z0bB6QMjdxXufLQx66CLuybPgcdPQWTs845MdfNnuA_4baUBsn214oCxywEA/exec";
 
   document.getElementById("confirmBtn").addEventListener("click", () => {
-    // ดึงข้อมูลที่เลือกไว้
-    const service_type = localStorage.getItem("service_type");
-    const area = localStorage.getItem("area");
-    const date = localStorage.getItem("date");
-    const slot = localStorage.getItem("slot");
+    // สร้างฟอร์มลับ ๆ
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = API_URL;
 
-    // เตรียมข้อมูลแบบฟอร์ม (ไม่ใช่ JSON)
-    const formData = new URLSearchParams();
-    formData.append("service_type", service_type);
-    formData.append("area", area);
-    formData.append("date", date);
-    formData.append("slot", slot);
+    function addField(name, value) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    }
 
-    // ส่งข้อมูลไปหลังบ้าน
-    fetch(API_URL, {
-      method: "POST",
-      body: formData
-    })
-    .then(() => {
-      alert("🎉 จองสำเร็จ");
-      localStorage.clear();
+    addField("service_type", localStorage.getItem("service_type"));
+    addField("area", localStorage.getItem("area"));
+    addField("date", localStorage.getItem("date"));
+    addField("slot", localStorage.getItem("slot"));
 
-      if (window.liff && liff.isInClient()) {
-        liff.closeWindow();
-      }
-    })
-    .catch(() => {
-      alert("❌ ระบบมีปัญหา ลองใหม่อีกครั้ง");
-    });
+    document.body.appendChild(form);
+    form.submit();
+
+    alert("🎉 จองสำเร็จ");
+    localStorage.clear();
+
+    if (window.liff && liff.isInClient()) {
+      liff.closeWindow();
+    }
   });
 </script>
-
-</body>
-</html>

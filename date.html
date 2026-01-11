@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เลือกวันที่</title>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="header">
+    <h1>เลือกวันที่</h1>
+    <div class="progress">
+      <div class="progress-bar" style="width:60%"></div>
+    </div>
+  </header>
+
+  <main class="content">
+    <label for="datePicker">วันที่ต้องการใช้บริการ</label>
+
+    <input
+      type="date"
+      id="datePicker"
+      class="date-input"
+    />
+
+    <p class="hint">
+      * สามารถจองล่วงหน้าได้ไม่เกิน 30 วัน
+    </p>
+  </main>
+
+  <footer class="footer">
+    <button class="secondary" id="backBtn">ย้อนกลับ</button>
+    <button id="nextBtn" disabled>ถัดไป</button>
+  </footer>
+
+<script>
+  const LIFF_ID = "LIFF_ID_ของคุณจริง";
+
+  liff.init({ liffId: LIFF_ID });
+
+  const datePicker = document.getElementById('datePicker');
+  const nextBtn = document.getElementById('nextBtn');
+
+  // ตั้งค่า min / max date
+  const today = new Date();
+  const maxDate = new Date();
+  maxDate.setDate(today.getDate() + 30);
+
+  datePicker.min = today.toISOString().split('T')[0];
+  datePicker.max = maxDate.toISOString().split('T')[0];
+
+  datePicker.addEventListener('change', () => {
+    if (datePicker.value) {
+      nextBtn.disabled = false;
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    localStorage.setItem('date', datePicker.value);
+    window.location.href = "slot.html";
+  });
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    history.back();
+  });
+</script>
+
+</body>
+</html>

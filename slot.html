@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เลือกช่วงเวลา</title>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="header">
+    <h1>เลือกช่วงเวลา</h1>
+    <div class="progress">
+      <div class="progress-bar" style="width:80%"></div>
+    </div>
+  </header>
+
+  <main class="content" id="slotContainer">
+    <!-- slot cards จะถูกสร้างด้วย JS -->
+  </main>
+
+  <footer class="footer">
+    <button class="secondary" id="backBtn">ย้อนกลับ</button>
+    <button id="nextBtn" disabled>ถัดไป</button>
+  </footer>
+
+<script>
+  const LIFF_ID = "LIFF_ID_ของคุณจริง";
+  liff.init({ liffId: LIFF_ID });
+
+  // ข้อมูล slot (config)
+  const SLOTS = [
+    { id: "slot_1", label: "09:00 – 12:00", capacity: 2 },
+    { id: "slot_2", label: "13:00 – 16:00", capacity: 2 },
+    { id: "slot_3", label: "16:00 – 18:00", capacity: 2 }
+  ];
+
+  // mock availability (จำลองว่ามีคนจองแล้ว)
+  const MOCK_BOOKINGS = {
+    slot_1: 1, // ยังว่าง
+    slot_2: 2, // เต็ม
+    slot_3: 0  // ว่าง
+  };
+
+  const container = document.getElementById("slotContainer");
+  const nextBtn = document.getElementById("nextBtn");
+  let selectedSlot = null;
+
+  function renderSlots() {
+    SLOTS.forEach(slot => {
+      const booked = MOCK_BOOKINGS[slot.id] || 0;
+      const isFull = booked >= slot.capacity;
+
+      const card = document.createElement("div");
+      card.className = "card selectable";
+      if (isFull) card.classList.add("disabled");
+
+      card.innerHTML = `
+        <h2>${slot.label}</h2>
+        <p>${isFull ? "เต็ม" : "ว่าง"}</p>
+      `;
+
+      if (!isFull) {
+        card.addEventListener("click", () => {
+          document.querySelectorAll(".card").forEach(c => c.classList.remove("selected"));
+          card.classList.add("selected");
+          selectedSlot = slot;
+          nextBtn.disabled = false;
+        });
+      }
+
+      container.appendChild(card);
+    });
+  }
+
+  renderSlots();
+
+  nextBtn.addEventListener("click", () => {
+    if (!selectedSlot) return;
+
+    localStorage.setItem("slot", selectedSlot.id);
+    localStorage.setItem("slot_label", selectedSlot.label);
+
+    window.location.href = "confirm.html";
+  });
+
+  document.getElementById("backBtn").addEventListener("click", () => {
+    history.back();
+  });
+</script>
+
+</body>
+</html>

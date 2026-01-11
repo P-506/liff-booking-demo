@@ -114,3 +114,25 @@ body {
   color: #6B7280;
   margin-top: 8px;
 }
+.summary-box {
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  background: #F9FAFB;
+}
+
+.summary-box .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.summary-box .label {
+  font-size: 14px;
+  color: #6B7280;
+}
+
+.summary-box .value {
+  font-size: 14px;
+  font-weight: 500;
+}

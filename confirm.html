@@ -1,17 +1,24 @@
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbw9Jg-z0bB6QMjdxXufLQx66CLuybPgcdPQWTs845MdfNnuA_4baUBsn214oCxywEA/exec";
 
+  // สร้าง iframe ล่องหน (กันหน้าเปลี่ยน)
+  const iframe = document.createElement("iframe");
+  iframe.name = "hidden_iframe";
+  iframe.style.display = "none";
+  document.body.appendChild(iframe);
+
   document.getElementById("confirmBtn").addEventListener("click", () => {
-    // สร้างฟอร์มลับ ๆ
+    // สร้างฟอร์ม
     const form = document.createElement("form");
     form.method = "POST";
     form.action = API_URL;
+    form.target = "hidden_iframe"; // ⭐ สำคัญมาก
 
     function addField(name, value) {
       const input = document.createElement("input");
       input.type = "hidden";
       input.name = name;
-      input.value = value;
+      input.value = value || "";
       form.appendChild(input);
     }
 
@@ -23,6 +30,7 @@
     document.body.appendChild(form);
     form.submit();
 
+    // UX ฝั่งผู้ใช้
     alert("🎉 จองสำเร็จ");
     localStorage.clear();
 

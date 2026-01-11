@@ -1,21 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ยืนยันการจอง</title>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+    .box {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #e5e7eb;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .label {
+      color: #6b7280;
+    }
+    .value {
+      font-weight: 500;
+    }
+    button {
+      width: 100%;
+      height: 48px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    #confirmBtn {
+      background: #16a34a;
+      color: #ffffff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>สรุปรายการจอง</h1>
+
+  <div class="box">
+    <div class="row">
+      <span class="label">บริการ</span>
+      <span class="value" id="service">-</span>
+    </div>
+    <div class="row">
+      <span class="label">พื้นที่</span>
+      <span class="value" id="area">-</span>
+    </div>
+    <div class="row">
+      <span class="label">วันที่</span>
+      <span class="value" id="date">-</span>
+    </div>
+    <div class="row">
+      <span class="label">เวลา</span>
+      <span class="value" id="slot">-</span>
+    </div>
+  </div>
+
+  <!-- ✅ ปุ่มยืนยัน (สำคัญมาก) -->
+  <button id="confirmBtn">✅ ยืนยันการจอง</button>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
   const API_URL = "https://script.google.com/macros/s/AKfycbw9Jg-z0bB6QMjdxXufLQx66CLuybPgcdPQWTs845MdfNnuA_4baUBsn214oCxywEA/exec";
 
-  // สร้าง iframe ล่องหน
+  // init LIFF (ไม่ critical ถ้า warning ขึ้น)
+  if (window.liff) {
+    liff.init({ liffId: "2008867980-fq1KwxaY" }).catch(() => {});
+  }
+
+  // ดึงข้อมูลจาก localStorage
+  const serviceType = localStorage.getItem("service_type");
+  const area = localStorage.getItem("area");
+  const date = localStorage.getItem("date");
+  const slot = localStorage.getItem("slot");
+  const slotLabel = localStorage.getItem("slot_label");
+
+  // ถ้าไม่มีข้อมูล แสดงเตือน
+  if (!serviceType || !area || !date || !slot) {
+    alert("ข้อมูลการจองไม่ครบ กรุณาเริ่มใหม่");
+    return;
+  }
+
+  // แสดงข้อมูล
+  document.getElementById("service").textContent =
+    serviceType === "one_time" ? "ทำความสะอาดรายครั้ง" : "ทำความสะอาดรายเดือน";
+  document.getElementById("area").textContent =
+    area === "bangkok" ? "กรุงเทพ" : "ปริมณฑล";
+  document.getElementById("date").textContent = date;
+  document.getElementById("slot").textContent = slotLabel || slot;
+
+  // iframe ล่องหน (กันหน้าขาว)
   const iframe = document.createElement("iframe");
   iframe.name = "hidden_iframe";
   iframe.style.display = "none";
   document.body.appendChild(iframe);
 
-  const confirmBtn = document.getElementById("confirmBtn");
-  if (!confirmBtn) {
-    console.error("ไม่พบปุ่ม confirmBtn");
-    return;
-  }
-
-  confirmBtn.addEventListener("click", function () {
+  // ปุ่มยืนยัน
+  document.getElementById("confirmBtn").addEventListener("click", function () {
 
     const form = document.createElement("form");
     form.method = "POST";
@@ -26,14 +128,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const input = document.createElement("input");
       input.type = "hidden";
       input.name = name;
-      input.value = value || "";
+      input.value = value;
       form.appendChild(input);
     }
 
-    addField("service_type", localStorage.getItem("service_type"));
-    addField("area", localStorage.getItem("area"));
-    addField("date", localStorage.getItem("date"));
-    addField("slot", localStorage.getItem("slot"));
+    addField("service_type", serviceType);
+    addField("area", area);
+    addField("date", date);
+    addField("slot", slot);
 
     document.body.appendChild(form);
     form.submit();
@@ -48,3 +150,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
+
+</body>
+</html>

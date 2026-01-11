@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ยืนยันการจอง</title>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="header">
+    <h1>สรุปรายการจอง</h1>
+    <div class="progress">
+      <div class="progress-bar" style="width:100%"></div>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="summary-box">
+      <div class="row">
+        <span class="label">บริการ</span>
+        <span class="value" id="service"></span>
+      </div>
+      <div class="row">
+        <span class="label">พื้นที่</span>
+        <span class="value" id="area"></span>
+      </div>
+      <div class="row">
+        <span class="label">วันที่</span>
+        <span class="value" id="date"></span>
+      </div>
+      <div class="row">
+        <span class="label">เวลา</span>
+        <span class="value" id="slot"></span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <button class="secondary" id="backBtn">แก้ไข</button>
+    <button id="confirmBtn">✅ ยืนยันการจอง</button>
+  </footer>
+
+<script>
+  const LIFF_ID = "2008867980-fq1KwxaY";
+  liff.init({ liffId: LIFF_ID });
+
+  // ดึงข้อมูลจาก localStorage
+  const serviceType = localStorage.getItem("service_type");
+  const area = localStorage.getItem("area");
+  const date = localStorage.getItem("date");
+  const slotLabel = localStorage.getItem("slot_label");
+
+  // map ค่าให้อ่านง่าย
+  const serviceMap = {
+    one_time: "ทำความสะอาดรายครั้ง",
+    monthly: "ทำความสะอาดรายเดือน"
+  };
+
+  const areaMap = {
+    bangkok: "กรุงเทพ",
+    metro: "ปริมณฑล"
+  };
+
+  document.getElementById("service").textContent =
+    serviceMap[serviceType] || "-";
+
+  document.getElementById("area").textContent =
+    areaMap[area] || "-";
+
+  document.getElementById("date").textContent = date || "-";
+  document.getElementById("slot").textContent = slotLabel || "-";
+
+  // ปุ่มแก้ไข
+  document.getElementById("backBtn").addEventListener("click", () => {
+    history.back();
+  });
+
+  // ปุ่มยืนยัน (mock success)
+  document.getElementById("confirmBtn").addEventListener("click", () => {
+    // ตอนนี้ยังไม่ยิง backend
+    alert("🎉 จองสำเร็จ!\nระบบจะส่งรายละเอียดให้ทาง LINE");
+
+    // เคลียร์ข้อมูล (optional)
+    localStorage.clear();
+
+    // ปิด LIFF
+    if (liff.isInClient()) {
+      liff.closeWindow();
+    }
+  });
+</script>
+
+</body>
+</html>

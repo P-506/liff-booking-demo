@@ -81,8 +81,42 @@
   });
 
   // ปุ่มยืนยัน (mock success)
-  document.getElementById("confirmBtn").addEventListener("click", () => {
-    // ตอนนี้ยังไม่ยิง backend
+ document.getElementById("confirmBtn").addEventListener("click", async () => {
+  const payload = {
+    service_type: localStorage.getItem("service_type"),
+    area: localStorage.getItem("area"),
+    date: localStorage.getItem("date"),
+    slot: localStorage.getItem("slot")
+  };
+
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbyAd7m5oded-4pxXmBgMwBHMZ8l2CHihz5XgEX7_vK6Si95ySOuaa0NIP17hMNN2NlD/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await res.json();
+
+    if (!result.success) {
+      alert(result.error === "SLOT_FULL"
+        ? "❌ ช่วงเวลานี้เต็มแล้ว"
+        : "❌ เกิดข้อผิดพลาด");
+      return;
+    }
+
+    alert("🎉 จองสำเร็จ! รหัส " + result.booking_id);
+    localStorage.clear();
+
+    if (liff.isInClient()) {
+      liff.closeWindow();
+    }
+
+  } catch (err) {
+    alert("❌ ติดต่อระบบไม่ได้");
+  }
+});
+
     alert("🎉 จองสำเร็จ!\nระบบจะส่งรายละเอียดให้ทาง LINE");
 
     // เคลียร์ข้อมูล (optional)

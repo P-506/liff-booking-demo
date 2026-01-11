@@ -23,19 +23,19 @@
     <div class="summary-box">
       <div class="row">
         <span class="label">บริการ</span>
-        <span class="value" id="service"></span>
+        <span class="value" id="service">-</span>
       </div>
       <div class="row">
         <span class="label">พื้นที่</span>
-        <span class="value" id="area"></span>
+        <span class="value" id="area">-</span>
       </div>
       <div class="row">
         <span class="label">วันที่</span>
-        <span class="value" id="date"></span>
+        <span class="value" id="date">-</span>
       </div>
       <div class="row">
         <span class="label">เวลา</span>
-        <span class="value" id="slot"></span>
+        <span class="value" id="slot">-</span>
       </div>
     </div>
   </main>
@@ -46,16 +46,38 @@
   </footer>
 
 <script>
+  /* ===============================
+     CONFIG
+  =============================== */
   const LIFF_ID = "2008867980-fq1KwxaY";
-  liff.init({ liffId: LIFF_ID });
+  const API_URL = "https://script.google.com/macros/s/AKfycbyAd7m5oded-4pxXmBgMwBHMZ8l2CHihz5XgEX7_vK6Si95ySOuaa0NIP17hMNN2NlD/exec"; 
+  // ตัวอย่าง: https://script.google.com/macros/s/AKfycbxxxx/exec
 
-  // ดึงข้อมูลจาก localStorage
+  /* ===============================
+     INIT LIFF
+  =============================== */
+  liff.init({ liffId: LIFF_ID }).catch(err => {
+    console.error("LIFF init error", err);
+  });
+
+  /* ===============================
+     LOAD DATA FROM localStorage
+  =============================== */
   const serviceType = localStorage.getItem("service_type");
   const area = localStorage.getItem("area");
   const date = localStorage.getItem("date");
+  const slot = localStorage.getItem("slot");
   const slotLabel = localStorage.getItem("slot_label");
 
-  // map ค่าให้อ่านง่าย
+  // ถ้าข้อมูลไม่ครบ → กลับไปหน้าแรก
+  if (!serviceType || !area || !date || !slot || !slotLabel) {
+    alert("ข้อมูลการจองไม่ครบ กรุณาเริ่มใหม่");
+    window.location.href = "index.html";
+  }
+
+  /* ===============================
+     MAP ค่าให้อ่านง่าย
+  =============================== */
   const serviceMap = {
     one_time: "ทำความสะอาดรายครั้ง",
     monthly: "ทำความสะอาดรายเดือน"
@@ -66,65 +88,71 @@
     metro: "ปริมณฑล"
   };
 
-  document.getElementById("service").textContent =
-    serviceMap[serviceType] || "-";
+  /* ===============================
+     RENDER SUMMARY
+  =============================== */
+  document.getElementById("service").textContent = serviceMap[serviceType];
+  document.getElementById("area").textContent = areaMap[area];
+  document.getElementById("date").textContent = date;
+  document.getElementById("slot").textContent = slotLabel;
 
-  document.getElementById("area").textContent =
-    areaMap[area] || "-";
-
-  document.getElementById("date").textContent = date || "-";
-  document.getElementById("slot").textContent = slotLabel || "-";
+  /* ===============================
+     BUTTON ACTIONS
+  =============================== */
 
   // ปุ่มแก้ไข
   document.getElementById("backBtn").addEventListener("click", () => {
     history.back();
   });
 
-  // ปุ่มยืนยัน (mock success)
- document.getElementById("confirmBtn").addEventListener("click", async () => {
-  const payload = {
-    service_type: localStorage.getItem("service_type"),
-    area: localStorage.getItem("area"),
-    date: localStorage.getItem("date"),
-    slot: localStorage.getItem("slot")
-  };
+  // ปุ่มยืนยัน
+  document.getElementById("confirmBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("confirmBtn");
+    btn.disabled = true;
+    btn.textContent = "กำลังบันทึก...";
 
-  try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbyAd7m5oded-4pxXmBgMwBHMZ8l2CHihz5XgEX7_vK6Si95ySOuaa0NIP17hMNN2NlD/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    const payload = {
+      service_type: serviceType,
+      area: area,
+      date: date,
+      slot: slot
+    };
 
-    const result = await res.json();
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-    if (!result.success) {
-      alert(result.error === "SLOT_FULL"
-        ? "❌ ช่วงเวลานี้เต็มแล้ว"
-        : "❌ เกิดข้อผิดพลาด");
-      return;
-    }
+      const result = await res.json();
 
-    alert("🎉 จองสำเร็จ! รหัส " + result.booking_id);
-    localStorage.clear();
+      if (!result.success) {
+        alert(
+          result.error === "SLOT_FULL"
+            ? "❌ ช่วงเวลานี้เต็มแล้ว กรุณาเลือกใหม่"
+            : "❌ เกิดข้อผิดพลาด กรุณาลองอีกครั้ง"
+        );
+        btn.disabled = false;
+        btn.textContent = "✅ ยืนยันการจอง";
+        return;
+      }
 
-    if (liff.isInClient()) {
-      liff.closeWindow();
-    }
+      alert("🎉 จองสำเร็จ!\nรหัสการจอง: " + result.booking_id);
 
-  } catch (err) {
-    alert("❌ ติดต่อระบบไม่ได้");
-  }
-});
+      // เคลียร์ข้อมูล
+      localStorage.clear();
 
-    alert("🎉 จองสำเร็จ!\nระบบจะส่งรายละเอียดให้ทาง LINE");
+      // ปิด LIFF
+      if (liff.isInClient()) {
+        liff.closeWindow();
+      }
 
-    // เคลียร์ข้อมูล (optional)
-    localStorage.clear();
-
-    // ปิด LIFF
-    if (liff.isInClient()) {
-      liff.closeWindow();
+    } catch (err) {
+      console.error(err);
+      alert("❌ ไม่สามารถติดต่อระบบได้");
+      btn.disabled = false;
+      btn.textContent = "✅ ยืนยันการจอง";
     }
   });
 </script>
